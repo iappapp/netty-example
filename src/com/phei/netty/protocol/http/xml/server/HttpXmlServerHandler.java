@@ -1,12 +1,12 @@
 /*
  * Copyright 2013-2018 Lilinfeng.
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,70 +45,70 @@ import com.phei.netty.protocol.http.xml.pojo.Order;
 
 /**
  * @author lilinfeng
- * @date 2014年2月14日
  * @version 1.0
+ * @date 2014年2月14日
  */
 public class HttpXmlServerHandler extends
-	SimpleChannelInboundHandler<HttpXmlRequest> {
+        SimpleChannelInboundHandler<HttpXmlRequest> {
 
     @Override
     public void messageReceived(final ChannelHandlerContext ctx,
-	    HttpXmlRequest xmlRequest) throws Exception {
-	HttpRequest request = xmlRequest.getRequest();
-	Order order = (Order) xmlRequest.getBody();
-	System.out.println("Http server receive request : " + order);
-	order = new Order();
-	dobusiness(order);
-	ChannelFuture future = ctx.writeAndFlush(new HttpXmlResponse(null,
-		order));
-	if (!isKeepAlive(request)) {
-	    future.addListener(new GenericFutureListener<Future<? super Void>>() {
-		public void operationComplete(Future future) throws Exception {
-		    ctx.close();
-		}
-	    });
-	}
+                                HttpXmlRequest xmlRequest) throws Exception {
+        HttpRequest request = xmlRequest.getRequest();
+        Order order = (Order) xmlRequest.getBody();
+        System.out.println("Http server receive request : " + order);
+        order = new Order();
+        dobusiness(order);
+        ChannelFuture future = ctx.writeAndFlush(new HttpXmlResponse(null,
+                order));
+        if (!isKeepAlive(request)) {
+            future.addListener(new GenericFutureListener<Future<? super Void>>() {
+                public void operationComplete(Future future) throws Exception {
+                    ctx.close();
+                }
+            });
+        }
     }
 
     private void dobusiness(Order order) {
-		if (Objects.isNull(order)) {
-			order = new Order();
-		}
-		if (Objects.isNull(order.getCustomer())) {
-			order.setCustomer(new Customer());
-		}
-		if (Objects.isNull(order.getBillTo())) {
-			order.setBillTo(new Address());
-		}
-	order.getCustomer().setFirstName("狄");
-	order.getCustomer().setLastName("仁杰");
-	List<String> midNames = new ArrayList<String>();
-	midNames.add("李元芳");
-	order.getCustomer().setMiddleNames(midNames);
-	Address address = order.getBillTo();
-	address.setCity("洛阳");
-	address.setCountry("大唐");
-	address.setState("河南道");
-	address.setPostCode("123456");
-	order.setBillTo(address);
-	order.setShipTo(address);
+        if (Objects.isNull(order)) {
+            order = new Order();
+        }
+        if (Objects.isNull(order.getCustomer())) {
+            order.setCustomer(new Customer());
+        }
+        if (Objects.isNull(order.getBillTo())) {
+            order.setBillTo(new Address());
+        }
+        order.getCustomer().setFirstName("狄");
+        order.getCustomer().setLastName("仁杰");
+        List<String> midNames = new ArrayList<String>();
+        midNames.add("李元芳");
+        order.getCustomer().setMiddleNames(midNames);
+        Address address = order.getBillTo();
+        address.setCity("洛阳");
+        address.setCountry("大唐");
+        address.setState("河南道");
+        address.setPostCode("123456");
+        order.setBillTo(address);
+        order.setShipTo(address);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-	    throws Exception {
-	cause.printStackTrace();
-	if (ctx.channel().isActive()) {
-	    sendError(ctx, INTERNAL_SERVER_ERROR);
-	}
+            throws Exception {
+        cause.printStackTrace();
+        if (ctx.channel().isActive()) {
+            sendError(ctx, INTERNAL_SERVER_ERROR);
+        }
     }
 
     private static void sendError(ChannelHandlerContext ctx,
-	    HttpResponseStatus status) {
-	FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
-		status, Unpooled.copiedBuffer("失败: " + status.toString()
-			+ "\r\n", CharsetUtil.UTF_8));
-	response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
-	ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                                  HttpResponseStatus status) {
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
+                status, Unpooled.copiedBuffer("失败: " + status.toString()
+                + "\r\n", CharsetUtil.UTF_8));
+        response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 }
