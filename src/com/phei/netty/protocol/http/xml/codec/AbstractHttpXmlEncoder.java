@@ -24,10 +24,14 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IMarshallingContext;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 
 /**
  * @author Administrator
@@ -36,23 +40,23 @@ import org.jibx.runtime.IMarshallingContext;
  */
 public abstract class AbstractHttpXmlEncoder<T> extends
 	MessageToMessageEncoder<T> {
-    IBindingFactory factory = null;
-    StringWriter writer = null;
     final static String CHARSET_NAME = "UTF-8";
     final static Charset UTF_8 = Charset.forName(CHARSET_NAME);
 
     protected ByteBuf encode0(ChannelHandlerContext ctx, Object body)
 	    throws Exception {
-	factory = BindingDirectory.getFactory(body.getClass());
-	writer = new StringWriter();
-	IMarshallingContext mctx = factory.createMarshallingContext();
-	mctx.setIndent(2);
-	mctx.marshalDocument(body, CHARSET_NAME, null, writer);
-	String xmlStr = writer.toString();
-	writer.close();
-	writer = null;
-	ByteBuf encodeBuf = Unpooled.copiedBuffer(xmlStr, UTF_8);
-	return encodeBuf;
+		try {
+			JAXBContext context = JAXBContext.newInstance(body.getClass());
+			Marshaller marshaller = context.createMarshaller();
+			StringWriter writer = new StringWriter();
+
+			marshaller.marshal(body, writer);
+			ByteBuf encodeBuf = Unpooled.copiedBuffer(writer.toString(), UTF_8);
+			return encodeBuf;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return Unpooled.copiedBuffer("<>".getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -67,10 +71,6 @@ public abstract class AbstractHttpXmlEncoder<T> extends
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 	    throws Exception {
 	// 释放资源
-	if (writer != null) {
-	    writer.close();
-	    writer = null;
-	}
     }
 
 }

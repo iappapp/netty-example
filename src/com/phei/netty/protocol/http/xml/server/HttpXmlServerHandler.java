@@ -19,6 +19,8 @@ import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
+import com.phei.netty.protocol.http.xml.pojo.Customer;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -34,6 +36,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.phei.netty.protocol.http.xml.codec.HttpXmlRequest;
 import com.phei.netty.protocol.http.xml.codec.HttpXmlResponse;
@@ -54,6 +57,7 @@ public class HttpXmlServerHandler extends
 	HttpRequest request = xmlRequest.getRequest();
 	Order order = (Order) xmlRequest.getBody();
 	System.out.println("Http server receive request : " + order);
+	order = new Order();
 	dobusiness(order);
 	ChannelFuture future = ctx.writeAndFlush(new HttpXmlResponse(null,
 		order));
@@ -67,6 +71,15 @@ public class HttpXmlServerHandler extends
     }
 
     private void dobusiness(Order order) {
+		if (Objects.isNull(order)) {
+			order = new Order();
+		}
+		if (Objects.isNull(order.getCustomer())) {
+			order.setCustomer(new Customer());
+		}
+		if (Objects.isNull(order.getBillTo())) {
+			order.setBillTo(new Address());
+		}
 	order.getCustomer().setFirstName("狄");
 	order.getCustomer().setLastName("仁杰");
 	List<String> midNames = new ArrayList<String>();

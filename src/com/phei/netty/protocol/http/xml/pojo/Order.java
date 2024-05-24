@@ -1,25 +1,38 @@
 package com.phei.netty.protocol.http.xml.pojo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Order information.
  */
+@XmlRootElement(name = "order")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Order {
 
+    @XmlElement(name = "orderNumber")
     private long orderNumber;
 
+    @XmlElement(name = "customer")
     private Customer customer;
 
     /** Billing address information. */
+    @XmlElement(name = "billTo")
     private Address billTo;
 
+    @XmlElement(name = "shipping")
     private Shipping shipping;
 
     /**
      * Shipping address information. If missing, the billing address is also
      * used as the shipping address.
      */
+    @XmlElement(name = "shipTo")
     private Address shipTo;
 
+    @XmlElement(name = "total")
     private Float total;
 
     public long getOrderNumber() {

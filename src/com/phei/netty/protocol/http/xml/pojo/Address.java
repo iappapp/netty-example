@@ -1,27 +1,41 @@
 package com.phei.netty.protocol.http.xml.pojo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Address information.
  */
+@XmlRootElement(name = "address")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Address {
     /** First line of street information (required). */
+    @XmlElement(name = "street1")
     private String street1;
 
     /** Second line of street information (optional). */
+    @XmlElement(name = "street2")
     private String street2;
 
+    @XmlElement(name = "city")
     private String city;
 
     /**
      * State abbreviation (required for the U.S. and Canada, optional
      * otherwise).
      */
+    @XmlElement(name = "state")
     private String state;
 
     /** Postal code (required for the U.S. and Canada, optional otherwise). */
+    @XmlElement(name = "postCode")
     private String postCode;
 
     /** Country name (optional, U.S. assumed if not supplied). */
+
+    @XmlElement(name = "country")
     private String country;
 
     public String getStreet1() {

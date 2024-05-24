@@ -1,20 +1,30 @@
 package com.phei.netty.protocol.http.xml.pojo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
  * Customer information.
  */
+@XmlRootElement(name = "customer")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Customer {
+    @XmlElement(name = "customerNumber")
     private long customerNumber;
 
     /** Personal name. */
+    @XmlElement(name = "firstName")
     private String firstName;
 
     /** Family name. */
+    @XmlElement(name = "lastName")
     private String lastName;
 
     /** Middle name(s), if any. */
+    @XmlElement(name = "middleNames")
     private List<String> middleNames;
 
     public long getCustomerNumber() {

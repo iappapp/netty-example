@@ -24,9 +24,13 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 
+import org.apache.tools.ant.filters.StringInputStream;
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IUnmarshallingContext;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 
 /**
  * @author Lilinfeng
@@ -35,9 +39,6 @@ import org.jibx.runtime.IUnmarshallingContext;
  */
 public abstract class AbstractHttpXmlDecoder<T> extends
 	MessageToMessageDecoder<T> {
-
-    private IBindingFactory factory;
-    private StringReader reader;
     private Class<?> clazz;
     private boolean isPrint;
     private final static String CHARSET_NAME = "UTF-8";
@@ -54,16 +55,20 @@ public abstract class AbstractHttpXmlDecoder<T> extends
 
     protected Object decode0(ChannelHandlerContext arg0, ByteBuf body)
 	    throws Exception {
-	factory = BindingDirectory.getFactory(clazz);
-	String content = body.toString(UTF_8);
-	if (isPrint)
-	    System.out.println("The body is : " + content);
-	reader = new StringReader(content);
-	IUnmarshallingContext uctx = factory.createUnmarshallingContext();
-	Object result = uctx.unmarshalDocument(reader);
-	reader.close();
-	reader = null;
-	return result;
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            String content = body.toString(UTF_8);
+            if (isPrint)
+                System.out.println("The body is : " + content);
+            Object object = unmarshaller.unmarshal(new StringInputStream(content));
+
+            return object;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+
     }
 
     /**
@@ -78,9 +83,6 @@ public abstract class AbstractHttpXmlDecoder<T> extends
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 	    throws Exception {
 	// 释放资源
-	if (reader != null) {
-	    reader.close();
-	    reader = null;
-	}
+		// super.exceptionCaught(ctx, cause);
     }
 }
